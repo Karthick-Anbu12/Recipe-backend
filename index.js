@@ -3,9 +3,12 @@ const mongoose = require("mongoose")
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const dotenv=require("dotenv")
+const cors=require("cors")
 dotenv.config()
 const { MongoClient, ObjectId } = require("mongodb")
-
+app.use(cors({
+    origin:["https://recipe-application-mern.netlify.app/","http://localhost:5173/"]
+}))
 const secretkey =process.env.SECRETKEY
 const port = process.env.PORT
 const url = process.env.URL
