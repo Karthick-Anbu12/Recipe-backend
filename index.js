@@ -2,17 +2,17 @@ const express = require('express')
 const mongoose = require("mongoose")
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const dotenv=require("dotenv")
-const cors=require("cors")
+const dotenv = require("dotenv")
+const cors = require("cors")
 dotenv.config()
 const { MongoClient, ObjectId } = require("mongodb")
+const app = express()
 app.use(cors({
-    origin:["https://recipe-application-mern.netlify.app/","http://localhost:5173/"]
+    origin: ["https://recipe-application-mern.netlify.app/", "http://localhost:5173/"]
 }))
-const secretkey =process.env.SECRETKEY
+const secretkey = process.env.SECRETKEY
 const port = process.env.PORT
 const url = process.env.URL
-const app = express()
 mongoose.connect(url).then(() => {
     console.log("Database connected successfully.");
     app.listen(port, () => {
