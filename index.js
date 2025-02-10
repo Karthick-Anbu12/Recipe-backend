@@ -8,7 +8,7 @@ dotenv.config()
 const { MongoClient, ObjectId } = require("mongodb")
 const app = express()
 app.use(cors({
-    origin: "https://recipe-application-mern.netlify.app/"
+    origin: "https://recipe-application-mern.netlify.app"
 }))
 const secretkey = process.env.SECRETKEY
 const port = process.env.PORT
