@@ -23,10 +23,25 @@ const userSchema = new mongoose.Schema({
     name: String,
     email: String,
     password: String,
-    recipelist: [],
+    recipelist:Array,
 })
 const users = mongoose.model("users", userSchema);
 app.use(express.json())
+//jwt
+let authenticate = (req, res, next) => {
+    if (!req.headers.authorization) {
+        res.status(401).json({ message: "unauthorized user" })
+    }
+    else {
+        jwt.verify(req.headers.authorization, secretkey, (error, data) => {
+            if (error) {
+                res.status(401).json({ message: "unauthorized" })
+            }
+            req.userid = data.id
+            next();
+        })
+    }
+}
 //Login
 app.post("/login", async (req, res) => {
     const client = new MongoClient(url);
@@ -51,7 +66,7 @@ app.post("/login", async (req, res) => {
     }
 })
 //Get user data
-app.get("/getdata", async (req, res) => {
+app.get("/getdata",authenticate , async (req, res) => {
     const client = new MongoClient(url);
 
     try {
@@ -59,7 +74,7 @@ app.get("/getdata", async (req, res) => {
 
         const collection = client.db().collection("users");
 
-        const result = await collection.find({}).toArray();
+        const result = await collection.findOne({ _id: new ObjectId(`${req.userid}`) });
         res.json(result)
 
         // console.log("Fetched data: ", result);
@@ -80,12 +95,12 @@ app.post("/putdata", async (req, res) => {
     res.send(result);
 })
 //Add Recipe
-app.post("/addrecipe", async (req, res) => {
+app.post("/addrecipe",authenticate,async (req, res) => {
     const client = new MongoClient(url);
     try {
         await client.connect();
         const collection = client.db().collection("users");
-        const id = new ObjectId("67a8e2183e417df049c06124")
+        const id = new ObjectId(`${req.userid}`)
         const updatecart = await collection.findOneAndUpdate({ _id: id }, { $push: { recipelist: (req.body) } })
 
         if (updatecart) {
@@ -102,12 +117,12 @@ app.post("/addrecipe", async (req, res) => {
     }
 })
 //Remove Recipe
-app.post("/removerecipe", async (req, res) => {
+app.post("/removerecipe", authenticate,async (req, res) => {
     const client = new MongoClient(url);
     try {
         await client.connect();
         const collection = client.db().collection("users");
-        const id = new ObjectId("67a8e2183e417df049c06124")
+        const id = new ObjectId(`${req.userid}`)
         const updatecart = await collection.findOneAndUpdate({ _id: id }, { $set: { recipelist: (req.body) } })
         if (updatecart) {
             res.json(updatecart);
